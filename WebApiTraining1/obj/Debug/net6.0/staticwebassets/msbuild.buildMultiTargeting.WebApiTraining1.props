@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\WebApiTraining1.props" />
+</Project>
