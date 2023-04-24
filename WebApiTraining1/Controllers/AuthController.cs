@@ -130,7 +130,7 @@ namespace WebApiTraining1.Controllers
                     new Claim("Id", user.UserId.ToString()),
 
                 }),
-                Expires = DateTime.UtcNow.AddSeconds(20),
+                Expires = DateTime.UtcNow.AddMinutes(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey
                 (secretKeyBytes), SecurityAlgorithms.HmacSha512Signature)
             };
@@ -149,7 +149,7 @@ namespace WebApiTraining1.Controllers
                 IsUsed = false,
                 IsRevoked = false,
                 IssuedAt = DateTime.UtcNow,
-                ExpiredAt = DateTime.UtcNow.AddSeconds(20),
+                ExpiredAt = DateTime.UtcNow.AddMinutes(1),
             };
 
             await _context.AddAsync(refreshTokenEntity);
@@ -180,7 +180,7 @@ namespace WebApiTraining1.Controllers
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTime.UtcNow.AddHours(3),
+                Expires = DateTime.UtcNow.AddMinutes(1),
             };
             Response.Cookies.Append("jwtCookie", token, cookieOptions);
         }
