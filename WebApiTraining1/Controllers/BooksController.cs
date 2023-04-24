@@ -11,13 +11,11 @@ namespace WebApiTraining1.Controllers
     [ApiController]
     public class BooksController : Controller
     {
-        private MyDbContext _context;
         private IBookRepository _bookRepository;
 
 
-        public BooksController(MyDbContext context, IBookRepository bookRepository)
+        public BooksController(IBookRepository bookRepository)
         {
-            _context = context;
             _bookRepository = bookRepository;
         }
 
@@ -36,52 +34,57 @@ namespace WebApiTraining1.Controllers
             }
         }
 
-        //[HttpPost]
-        //public IActionResult Create(Book book)
+        [HttpPost]
+        public IActionResult Create(Book book)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newBook = _bookRepository.Create(book);
+
+            if (newBook == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(newBook);
+        }
+
+        //[HttpPut("{id}")]
+        //public IActionResult Update(int id, Book book)
         //{
-        //    try
+        //    var targetBook = _context.Books.SingleOrDefault(x => x.Id == id);
+        //    if (targetBook != null)
         //    {
-        //        //var result = 
+        //        targetBook.Title = book.Title;
+        //        targetBook.Author = book.Author;
+        //        targetBook.Ibsn = book.Ibsn;
+        //        _context.SaveChanges();
+        //        return NoContent();
         //    }
-        //    catch
+        //    else
         //    {
-        //        return BadRequest();
+        //        return NotFound();
         //    }
         //}
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, Book book)
-        {
-            var targetBook = _context.Books.SingleOrDefault(x => x.Id == id);
-            if (targetBook != null)
-            {
-                targetBook.Title = book.Title;
-                targetBook.Author = book.Author;
-                targetBook.Ibsn = book.Ibsn;
-                _context.SaveChanges();
-                return NoContent();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
-        [HttpDelete]
-        public IActionResult Delete(int id)
-        {
-            var book = _context.Books.SingleOrDefault(x => x.Id == id);
-            if (book != null)
-            {
-                _context.Books.Remove(book);
-                _context.SaveChanges();
-                return NoContent();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
+        //[HttpDelete]
+        //public IActionResult Delete(int id)
+        //{
+        //    var book = _context.Books.SingleOrDefault(x => x.Id == id);
+        //    if (book != null)
+        //    {
+        //        _context.Books.Remove(book);
+        //        _context.SaveChanges();
+        //        return NoContent();
+        //    }
+        //    else
+        //    {
+        //        return NotFound();
+        //    }
+        //}
 
 
         ////////////////////////// ////////////////////////

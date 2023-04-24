@@ -15,21 +15,6 @@ namespace WebApiTraining1.Services
             _context = context;
         }
 
-        //public List<Book> GetAll(string search)
-        //{
-        //    var allBooks = _context.Books.Where(b => b.Title.Contains(search));
-
-        //    var result = allBooks.Select(book => new Book
-        //    {
-        //        Id = book.Id,
-        //        Title = book.Title,
-        //        Author = book.Author,
-        //        Ibsn = book.Ibsn
-        //    });
-
-        //    return result.ToList();
-        //}
-
         public List<Book> GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1)
         {
             var book = _context.Books.AsQueryable();
@@ -70,18 +55,26 @@ namespace WebApiTraining1.Services
         }
 
 
+
         public Book Create(Book book)
         {
-            var newBook = new Book
+            try
             {
-                Title = book.Title,
-                Author = book.Author,
-                Ibsn = book.Ibsn
-            };
-            _context.Add(newBook);
-            _context.SaveChanges();
+                var newBook = new Book
+                {
+                    Title = book.Title,
+                    Author = book.Author,
+                    Ibsn = book.Ibsn
+                };
+                _context.Add(newBook);
+                _context.SaveChanges();
 
-            return newBook;
+                return newBook;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
     }
 }
