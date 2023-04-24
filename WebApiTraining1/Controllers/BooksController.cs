@@ -21,8 +21,9 @@ namespace WebApiTraining1.Controllers
             _bookRepository = bookRepository;
         }
 
+        [Authorize]
         [HttpGet]
-        public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string sortBy, int page = 1)
+        public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1)
         {
             try
             {
@@ -35,26 +36,18 @@ namespace WebApiTraining1.Controllers
             }
         }
 
-        [HttpPost]
-        public IActionResult Create(Book book)
-        {
-            try
-            {
-                var newBook = new Book
-                {
-                    Title = book.Title,
-                    Author = book.Author,
-                    Ibsn = book.Ibsn
-                };
-                _context.Add(newBook);
-                _context.SaveChanges();
-                return Ok(newBook);
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
+        //[HttpPost]
+        //public IActionResult Create(Book book)
+        //{
+        //    try
+        //    {
+        //        //var result = 
+        //    }
+        //    catch
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, Book book)
