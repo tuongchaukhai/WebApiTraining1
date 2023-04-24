@@ -283,3 +283,10 @@ E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\runtime
 E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 E:\Working\Training\API\WebApiTraining1\WebApiTraining1\obj\Debug\net6.0\WebApiTraining1.RazorAssemblyInfo.cache
 E:\Working\Training\API\WebApiTraining1\WebApiTraining1\obj\Debug\net6.0\WebApiTraining1.RazorAssemblyInfo.cs
+E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
+E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\Mono.TextTemplating.dll
+E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\System.CodeDom.dll
+E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\System.Text.Encodings.Web.dll
+E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\System.Text.Json.dll
+E:\Working\Training\API\WebApiTraining1\WebApiTraining1\bin\Debug\net6.0\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll

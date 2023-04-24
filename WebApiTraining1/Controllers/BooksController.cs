@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiTraining1.Models;
 using static System.Reflection.Metadata.BlobBuilder;
@@ -16,6 +17,7 @@ namespace WebApiTraining1.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "staff,admin,customer")]
         [HttpGet]
         public IActionResult Get([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author)
         {
@@ -66,7 +68,6 @@ namespace WebApiTraining1.Controllers
         //    }
         //}
 
-
         [HttpPost]
         public IActionResult Create(Book book)
         {
@@ -76,7 +77,7 @@ namespace WebApiTraining1.Controllers
                 {
                     Title = book.Title,
                     Author = book.Author,
-                    IBSN = book.IBSN
+                    Ibsn = book.Ibsn
                 };
                 _context.Add(newBook);
                 _context.SaveChanges();
@@ -96,7 +97,7 @@ namespace WebApiTraining1.Controllers
             {
                 targetBook.Title = book.Title;
                 targetBook.Author = book.Author;
-                targetBook.IBSN = book.IBSN;
+                targetBook.Ibsn = book.Ibsn;
                 _context.SaveChanges();
                 return NoContent(); 
             }

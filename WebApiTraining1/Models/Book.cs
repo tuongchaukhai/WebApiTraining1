@@ -1,13 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace WebApiTraining1.Models
+namespace WebApiTraining1.Models;
+
+public partial class Book
 {
-    [Table("Book")]
-    public class Book
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Author { get; set; }
-        public string IBSN { get; set; }
-    }
+    public int Id { get; set; }
+
+    public string? Title { get; set; }
+
+    public string? Author { get; set; }
+
+    public string? Ibsn { get; set; }
 }
