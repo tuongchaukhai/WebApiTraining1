@@ -91,7 +91,7 @@ namespace WebApiTraining1.Controllers
                 Email = request.Email,
                 Password = passwordHash,
                 FullName = request.FullName,
-                RoleId = 2 //customer
+                RoleId = 2 //set default is a customer
             };
 
             if (user == null)
@@ -139,7 +139,7 @@ namespace WebApiTraining1.Controllers
             var accessToken = jwtTokenHandler.WriteToken(token);
             var refreshToken = GenerateRefreshToken();
 
-            //Lưu refreshToken vào database
+            //Save the refreshtoken into the DB
             var refreshTokenEntity = new RefreshToken
             {
                 Id = Guid.NewGuid(),
@@ -155,7 +155,7 @@ namespace WebApiTraining1.Controllers
             await _context.AddAsync(refreshTokenEntity);
             _context.SaveChanges();
 
-            SetJWTCookie(accessToken); //in token lên cookies
+            SetJWTCookie(accessToken); //Set token in a cookie
 
             return new TokenModel
             {
@@ -190,10 +190,10 @@ namespace WebApiTraining1.Controllers
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var secretKeyBytes = Encoding.UTF8.GetBytes(_appSetting.SecretKey);
-            //kiểm tra xem token có hợp lệ không trước khi renew cái mới
+            //Validate the token before renewing a new one
             var tokenValidateParam = new TokenValidationParameters
             {
-                //Copy từ bên program.cs
+                //Copy form the program.cs
                 ValidateIssuer = false,
                 ValidateAudience = false,
 
@@ -202,9 +202,9 @@ namespace WebApiTraining1.Controllers
 
                 ClockSkew = TimeSpan.Zero,
 
-                //vì đang renew chỉ cần kiểm tra key hợp lệ không nên không cần kiểm tra expired chưa
-                //tránh trường hợp khi token expired nhảy vào catch 
-                //mặc định là true
+                //because during renewing, we only need to check if the key is valid, so there is no need to check if it has expired
+                //to avoid the situation where the token has expired and jumps to the catch block
+                //default is true
                 ValidateLifetime = false
             };
             try
@@ -212,7 +212,7 @@ namespace WebApiTraining1.Controllers
                 //Check accesstoken valid format
                 var tokenInVerification = jwtTokenHandler.ValidateToken(model.AccessToken, tokenValidateParam, out var validatedToken);
 
-                //Check thuật toán (ALG)
+                //Check alg
                 if (validatedToken is JwtSecurityToken jwtSecurityToken)
                 {
                     var result = jwtSecurityToken.Header.Alg.Equals

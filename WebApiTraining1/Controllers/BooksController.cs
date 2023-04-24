@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiTraining1.Models;
+using WebApiTraining1.Services;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace WebApiTraining1.Controllers
@@ -11,34 +12,108 @@ namespace WebApiTraining1.Controllers
     public class BooksController : Controller
     {
         private MyDbContext _context;
-        public BooksController(MyDbContext context)
-        {
+        private IBookRepository _bookRepository;
 
+
+        public BooksController(MyDbContext context, IBookRepository bookRepository)
+        {
             _context = context;
+            _bookRepository = bookRepository;
         }
 
-        [Authorize(Roles = "staff,admin,customer")]
         [HttpGet]
-        public IActionResult Get([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author)
+        public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string sortBy, int page = 1)
         {
-            var book = _context.Books.AsQueryable();
-
-            if(id != null)
+            try
             {
-                book = _context.Books.Where(x => x.Id == id);
-
+                var result = _bookRepository.GetAll(id, title, author, sortBy);
+                return Ok(result);
             }
-            else if(title != null)
+            catch (Exception ex)
             {
-                book = _context.Books.Where(x=>x.Title == title);
+                return BadRequest("Can't get the book");
             }
-            else if(author != null)
-            {
-                book = _context.Books.Where(x => x.Author == author);
-            }
-
-            return Ok(book.ToList());
         }
+
+        [HttpPost]
+        public IActionResult Create(Book book)
+        {
+            try
+            {
+                var newBook = new Book
+                {
+                    Title = book.Title,
+                    Author = book.Author,
+                    Ibsn = book.Ibsn
+                };
+                _context.Add(newBook);
+                _context.SaveChanges();
+                return Ok(newBook);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, Book book)
+        {
+            var targetBook = _context.Books.SingleOrDefault(x => x.Id == id);
+            if (targetBook != null)
+            {
+                targetBook.Title = book.Title;
+                targetBook.Author = book.Author;
+                targetBook.Ibsn = book.Ibsn;
+                _context.SaveChanges();
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var book = _context.Books.SingleOrDefault(x => x.Id == id);
+            if (book != null)
+            {
+                _context.Books.Remove(book);
+                _context.SaveChanges();
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+
+        ////////////////////////// ////////////////////////
+        //[Authorize(Roles = "staff,admin,customer")]
+        //[HttpGet]
+        //public IActionResult Get([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author)
+        //{
+        //    var book = _context.Books.AsQueryable();
+
+        //    if(id != null)
+        //    {
+        //        book = _context.Books.Where(x => x.Id == id);
+
+        //    }
+        //    else if(title != null)
+        //    {
+        //        book = _context.Books.Where(x=>x.Title == title);
+        //    }
+        //    else if(author != null)
+        //    {
+        //        book = _context.Books.Where(x => x.Author == author);
+        //    }
+
+        //    return Ok(book.ToList());
+        //}
 
         //[HttpGet("GetById")]
         //public IActionResult GetById([FromQuery] int id)
@@ -68,59 +143,6 @@ namespace WebApiTraining1.Controllers
         //    }
         //}
 
-        [HttpPost]
-        public IActionResult Create(Book book)
-        {
-            try
-            {
-                var newBook = new Book
-                {
-                    Title = book.Title,
-                    Author = book.Author,
-                    Ibsn = book.Ibsn
-                };
-                _context.Add(newBook);
-                _context.SaveChanges();
-                return Ok(newBook);
-            }
-            catch
-            { 
-                return BadRequest();
-            }
-        }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, Book book)
-        {
-            var targetBook = _context.Books.SingleOrDefault(x => x.Id == id);
-            if(targetBook != null)
-            {
-                targetBook.Title = book.Title;
-                targetBook.Author = book.Author;
-                targetBook.Ibsn = book.Ibsn;
-                _context.SaveChanges();
-                return NoContent(); 
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
-        [HttpDelete]
-        public IActionResult Delete(int id)
-        {
-            var book = _context.Books.SingleOrDefault( x => x.Id == id);
-            if(book != null)
-            {
-                _context.Books.Remove(book);
-                _context.SaveChanges();
-                return NoContent();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
     }
 }
