@@ -4,6 +4,8 @@ using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using NuGet.Common;
 using System.Diagnostics;
 using System.Drawing.Text;
 using System.IdentityModel.Tokens.Jwt;
@@ -27,15 +29,35 @@ namespace WebApiTraining1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Validate(string email, string password)
+        public async Task<IActionResult> Validate(LoginDto request)
         {
-            var user = _context.Users.Include(x => x.Role).SingleOrDefault(x => x.Email == email && x.Password == password);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Invalid input",
+                    ModelState = new SerializableError(ModelState)
+                });
+            }
+
+            var user = _context.Users.Include(x => x.Role).SingleOrDefault(x => x.Email == request.Email);
+
             if (user == null)
             {
                 return Ok(new ApiResponse
                 {
                     Success = false,
-                    Message = "Invalid email/password"
+                    Message = "Invalid email"
+                });
+            }
+
+            if(!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+            {
+                return Ok(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Invalid password"
                 });
             }
 
@@ -45,6 +67,50 @@ namespace WebApiTraining1.Controllers
                 Success = true,
                 Message = "Authenticate Success",
                 Data = token
+            });
+        }
+
+
+        [HttpPost("register")]
+        public ActionResult Register(RegisterDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Invalid input",
+                    ModelState = new SerializableError(ModelState)
+                });
+            }
+
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            var user = new User
+            {
+                Email = request.Email,
+                Password = passwordHash,
+                FullName = request.FullName,
+                RoleId = 2 //customer
+            };
+
+            if (user == null)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Registration failed"
+                });
+            }
+
+            _context.Add(user);
+            _context.SaveChanges();
+
+            return Ok(new ApiResponse
+            {
+                Success = true,
+                Message = "Sign up success"
+
             });
         }
 

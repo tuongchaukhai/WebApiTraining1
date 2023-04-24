@@ -76,7 +76,7 @@ public partial class MyDbContext : DbContext
 
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.FullName).HasMaxLength(30);
-            entity.Property(e => e.Password).HasMaxLength(15);
+            entity.Property(e => e.Password).HasMaxLength(100);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
