@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiTraining1.Models;
 using WebApiTraining1.Services;
+using WebApiTraining1.ViewModels;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace WebApiTraining1.Controllers
@@ -11,12 +13,13 @@ namespace WebApiTraining1.Controllers
     [ApiController]
     public class BooksController : Controller
     {
-        private IBookRepository _bookRepository;
+        private readonly IBookRepository _bookRepository;
+        private readonly IMapper _mapper;
 
-
-        public BooksController(IBookRepository bookRepository)
+        public BooksController(IBookRepository bookRepository, IMapper mapper)
         {
             _bookRepository = bookRepository;
+            _mapper = mapper;
         }
 
         [Authorize]
@@ -35,13 +38,14 @@ namespace WebApiTraining1.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Book book)
+        public IActionResult Create(BookViewModel bookVM)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            var book = _mapper.Map<Book>(bookVM);
             var newBook = _bookRepository.Create(book);
 
             if (newBook == null)

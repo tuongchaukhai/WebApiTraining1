@@ -1,4 +1,6 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -8,6 +10,7 @@ using System.Text;
 using WebApiTraining1;
 using WebApiTraining1.Models;
 using WebApiTraining1.Services;
+using WebApiTraining1.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +62,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 var connectionString = builder.Configuration.GetConnectionString("MyDbConnection");
 builder.Services.AddDbContext<MyDbContext>(x => x.UseSqlServer(connectionString));
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+
+builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddControllersWithViews();
+
+MapperConfiguration mappingConfig = new MapperConfiguration(mc =>
+{
+    mc.CreateMap<BookViewModel, Book>();
+});
+
+IMapper mapper = mappingConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 var app = builder.Build();
 
