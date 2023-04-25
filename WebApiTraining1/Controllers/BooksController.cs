@@ -28,7 +28,7 @@ namespace WebApiTraining1.Controllers
         {
             try
             {
-                var result = _bookRepository.GetAll(id, title, author, sortBy);
+                var result = _bookRepository.GetAll(id, title, author, sortBy, page);
                 return Ok(result);
             }
             catch (Exception ex)
