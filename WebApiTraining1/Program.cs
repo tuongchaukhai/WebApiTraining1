@@ -75,6 +75,12 @@ MapperConfiguration mappingConfig = new MapperConfiguration(mc =>
 IMapper mapper = mappingConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
+builder.Services.AddLogging(builder =>
+{
+    builder.AddConsole();
+    builder.AddDebug();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

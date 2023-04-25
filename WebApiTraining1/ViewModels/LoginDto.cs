@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApiTraining1.Models
+namespace WebApiTraining1.ViewModels
 {
     public class LoginDto
     {

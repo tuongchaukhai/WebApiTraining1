@@ -1,18 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Linq;
-using NuGet.Common;
-using System.Diagnostics;
-using System.Drawing.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using WebApiTraining1.Models;
+using WebApiTraining1.ViewModels;
 
 namespace WebApiTraining1.Controllers
 {
@@ -20,98 +15,105 @@ namespace WebApiTraining1.Controllers
     [ApiController]
     public class AuthController : Controller
     {
-        private MyDbContext _context;
-        private AppSetting _appSetting;
-        public AuthController(MyDbContext context, IOptionsMonitor<AppSetting> optionsMonitor)
+        private readonly MyDbContext _context;
+        private readonly AppSetting _appSetting;
+        private readonly ILogger<AuthController> _logger;
+        public AuthController(MyDbContext context, IOptionsMonitor<AppSetting> optionsMonitor, ILogger<AuthController> logger)
         {
             _context = context;
             _appSetting = optionsMonitor.CurrentValue;
+            _logger = logger;
         }
 
         [HttpPost]
         public async Task<IActionResult> Validate(LoginDto request)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                var user = _context.Users.Include(x => x.Role).SingleOrDefault(x => x.Email == request.Email);
+
+                if (user == null)
+                {
+                    throw new Exception("This user doesn't exist");
+                }
+
+                if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+                {
+                    throw new Exception("Invalid password");
+                }
+
+                var token = await GenerateToken(user);
+
+                _logger.LogInformation("An account with email: {email} has just been logged at {datetime}, token user: {token}", request.Email, DateTime.Now.ToString(), token.AccessToken);
+
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Authenticate Success",
+                    Data = token
+                });
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new ApiResponse
                 {
-                    Success = false,
-                    Message = "Invalid input",
-                    ModelState = new SerializableError(ModelState)
+                    Success = true,
+                    Message = ex.Message
                 });
             }
-
-            var user = _context.Users.Include(x => x.Role).SingleOrDefault(x => x.Email == request.Email);
-
-            if (user == null)
-            {
-                return Ok(new ApiResponse
-                {
-                    Success = false,
-                    Message = "Invalid email"
-                });
-            }
-
-            if(!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            {
-                return Ok(new ApiResponse
-                {
-                    Success = false,
-                    Message = "Invalid password"
-                });
-            }
-
-            var token = await GenerateToken(user);
-            return Ok(new ApiResponse
-            {
-                Success = true,
-                Message = "Authenticate Success",
-                Data = token
-            });
         }
 
 
         [HttpPost("register")]
         public ActionResult Register(RegisterDto request)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(new ApiResponse
+                if (!ModelState.IsValid)
                 {
-                    Success = false,
-                    Message = "Invalid input",
-                    ModelState = new SerializableError(ModelState)
+                    throw new InvalidOperationException();
+                }
+
+                string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+                var user = new User
+                {
+                    Email = request.Email,
+                    Password = passwordHash,
+                    FullName = request.FullName,
+                    RoleId = 2 //set default is a customer
+                };
+
+                if (user == null)
+                {
+                    throw new Exception("This user does not exist");
+                }
+
+                _context.Add(user);
+                _context.SaveChanges();
+
+                _logger.LogInformation("An account with email: {email} has just been registed at {datetime}", request.Email, DateTime.Now.ToString());
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Sign up success"
+
                 });
             }
-
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            var user = new User
+            catch(Exception ex)
             {
-                Email = request.Email,
-                Password = passwordHash,
-                FullName = request.FullName,
-                RoleId = 2 //set default is a customer
-            };
-
-            if (user == null)
-            {
+                //_logger.LogError("Resigter's error: {ex}", ex.Message);
                 return BadRequest(new ApiResponse
                 {
-                    Success = false,
-                    Message = "Registration failed"
+                    Success = true,
+                    Message = ex.Message
                 });
             }
-
-            _context.Add(user);
-            _context.SaveChanges();
-
-            return Ok(new ApiResponse
-            {
-                Success = true,
-                Message = "Sign up success"
-
-            });
         }
 
         private async Task<TokenModel> GenerateToken(User user)

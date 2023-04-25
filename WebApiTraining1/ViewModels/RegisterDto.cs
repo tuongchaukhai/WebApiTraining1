@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using RequiredAttribute = Microsoft.Build.Framework.RequiredAttribute;
 
-namespace WebApiTraining1.Models
+namespace WebApiTraining1.ViewModels
 {
     public class RegisterDto
     {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebApiTraining1.Models;
 using WebApiTraining1.Services;
 using WebApiTraining1.ViewModels;
@@ -15,11 +16,13 @@ namespace WebApiTraining1.Controllers
     {
         private readonly IBookRepository _bookRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<BooksController> _logger;
 
-        public BooksController(IBookRepository bookRepository, IMapper mapper)
+        public BooksController(IBookRepository bookRepository, IMapper mapper, ILogger<BooksController> logger)
         {
             _bookRepository = bookRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [Authorize]
@@ -37,6 +40,7 @@ namespace WebApiTraining1.Controllers
             }
         }
 
+        [Authorize(Roles = "staff")]
         [HttpPost]
         public IActionResult Create(BookViewModel bookVM)
         {
@@ -50,12 +54,15 @@ namespace WebApiTraining1.Controllers
 
             if (newBook == null)
             {
+                var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown";
+                _logger.LogInformation("Book \"{id}\" is created successfully by {email}", book.Id, email);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             return Ok(newBook);
         }
 
+        [Authorize(Roles = "staff")]
         [HttpPut("{id}")]
         public IActionResult Update(int id, BookViewModel bookVM)
         {
@@ -68,81 +75,34 @@ namespace WebApiTraining1.Controllers
             {
                 var book = _mapper.Map<Book>(bookVM);
                 _bookRepository.Update(id, book);
+                var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown";
+                _logger.LogInformation("Book \"{id}\" is updated successfully by {email}",book.Id, email);
                 return NoContent();
             }
            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error updating book with id {id}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             try
             {
                 _bookRepository.Delete(id);
+                var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown";
+                _logger.LogInformation("Book \"{id}\" is updated successfully by {email}", id, email);
                 return NoContent();
             }
             catch(Exception ex)
             {
+                _logger.LogError(ex, "Error deleting book with id {id}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
-
-
-        ////////////////////////// ////////////////////////
-        //[Authorize(Roles = "staff,admin,customer")]
-        //[HttpGet]
-        //public IActionResult Get([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author)
-        //{
-        //    var book = _context.Books.AsQueryable();
-
-        //    if(id != null)
-        //    {
-        //        book = _context.Books.Where(x => x.Id == id);
-
-        //    }
-        //    else if(title != null)
-        //    {
-        //        book = _context.Books.Where(x=>x.Title == title);
-        //    }
-        //    else if(author != null)
-        //    {
-        //        book = _context.Books.Where(x => x.Author == author);
-        //    }
-
-        //    return Ok(book.ToList());
-        //}
-
-        //[HttpGet("GetById")]
-        //public IActionResult GetById([FromQuery] int id)
-        //{
-        //    var book = _context.Books.Where(x => x.Id == id);
-        //    if (book != null)
-        //    {
-        //        return Ok(book);
-        //    }
-        //    else
-        //    {
-        //        return NotFound();
-        //    }
-        //}
-
-        //[HttpGet("GetByTitle")]
-        //public IActionResult GetByTitle([FromQuery] string title)
-        //{
-        //    var book = _context.Books.SingleOrDefault(x => x.Title == title);
-        //    if (book != null)
-        //    {
-        //        return Ok(book);
-        //    }
-        //    else
-        //    {
-        //        return NotFound();
-        //    }
-        //}
-
 
     }
 }
