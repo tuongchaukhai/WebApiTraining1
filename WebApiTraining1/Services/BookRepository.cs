@@ -55,8 +55,6 @@ namespace WebApiTraining1.Services
             return book.ToList();
         }
 
-
-
         public Book Create(Book book)
         {
             try
@@ -96,10 +94,30 @@ namespace WebApiTraining1.Services
                     throw new Exception("This book id isn't exist");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        public void Delete(int id)
+        {
+            try
+            {
+                var book = _context.Books.SingleOrDefault(x => x.Id == id);
+                if (book != null)
+                {
+                    _context.Books.Remove(book);
+                    _context.SaveChanges();
+                }
+                else
+                { throw new Exception("This book is not exist"); }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }

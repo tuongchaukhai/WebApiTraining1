@@ -76,21 +76,19 @@ namespace WebApiTraining1.Controllers
             }
         }
 
-        //[HttpDelete]
-        //public IActionResult Delete(int id)
-        //{
-        //    var book = _context.Books.SingleOrDefault(x => x.Id == id);
-        //    if (book != null)
-        //    {
-        //        _context.Books.Remove(book);
-        //        _context.SaveChanges();
-        //        return NoContent();
-        //    }
-        //    else
-        //    {
-        //        return NotFound();
-        //    }
-        //}
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _bookRepository.Delete(id);
+                return NoContent();
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
 
         ////////////////////////// ////////////////////////
