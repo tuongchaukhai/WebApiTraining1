@@ -25,7 +25,6 @@ namespace WebApiTraining1.Controllers
             _logger = logger;
         }
 
-        [Authorize]
         [HttpGet]
         public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1)
         {
@@ -104,5 +103,18 @@ namespace WebApiTraining1.Controllers
             }
         }
 
+        [HttpGet("{id}")]
+        public IActionResult Details(int id)
+        {
+            try
+            {
+                return Ok (_bookRepository.Details(id));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error get book with id {id}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

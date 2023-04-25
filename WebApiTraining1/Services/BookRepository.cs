@@ -111,13 +111,29 @@ namespace WebApiTraining1.Services
                     _context.SaveChanges();
                 }
                 else
-                { throw new Exception("This book is not exist"); }
+                { throw new Exception("This book doesn't exist"); }
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
 
+        public Book Details(int id)
+        {
+            try
+            {
+                var book = _context.Books.FirstOrDefault(x => x.Id == id);
+                if (book != null)
+                {
+                    return book;
+                }
+                else { throw new Exception("This book id doesn't exist"); }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

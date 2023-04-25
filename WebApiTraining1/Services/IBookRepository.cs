@@ -14,5 +14,7 @@ namespace WebApiTraining1.Services
         void Update(int id, Book book);
 
         void Delete(int id);
+
+        Book Details(int id);
     }
 }
