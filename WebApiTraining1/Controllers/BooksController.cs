@@ -50,29 +50,31 @@ namespace WebApiTraining1.Controllers
 
             if (newBook == null)
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
             return Ok(newBook);
         }
 
-        //[HttpPut("{id}")]
-        //public IActionResult Update(int id, Book book)
-        //{
-        //    var targetBook = _context.Books.SingleOrDefault(x => x.Id == id);
-        //    if (targetBook != null)
-        //    {
-        //        targetBook.Title = book.Title;
-        //        targetBook.Author = book.Author;
-        //        targetBook.Ibsn = book.Ibsn;
-        //        _context.SaveChanges();
-        //        return NoContent();
-        //    }
-        //    else
-        //    {
-        //        return NotFound();
-        //    }
-        //}
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, BookViewModel bookVM)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var book = _mapper.Map<Book>(bookVM);
+                _bookRepository.Update(id, book);
+                return NoContent();
+            }
+           catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         //[HttpDelete]
         //public IActionResult Delete(int id)

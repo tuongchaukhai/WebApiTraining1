@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiTraining1.Models;
+using WebApiTraining1.ViewModels;
 
 namespace WebApiTraining1.Services
 {
@@ -74,6 +75,30 @@ namespace WebApiTraining1.Services
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        public void Update(int id, Book book)
+        {
+            try
+            {
+                var targetBook = _context.Books.SingleOrDefault(x => x.Id == id);
+                if (targetBook != null)
+                {
+                    targetBook.Title = book.Title;
+                    targetBook.Author = book.Author;
+                    targetBook.Ibsn = book.Ibsn;
+                    _context.Books.Update(targetBook);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("This book id isn't exist");
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
         }
     }
