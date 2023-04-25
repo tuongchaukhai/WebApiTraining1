@@ -27,11 +27,13 @@ namespace WebApiTraining1.Services
             }
             if (!string.IsNullOrEmpty(title))
             {
-                book = _context.Books.Where(x => x.Title.Contains(title));
+                //book = _context.Books.Where(x => x.Title.Contains(title));
+                book = _context.Books.Where(x => x.Title == title);
             }
             if (!string.IsNullOrEmpty(author))
             {
-                book = _context.Books.Where(x => x.Author.Contains(author));
+                //book = _context.Books.Where(x => x.Author.Contains(author));
+                book = _context.Books.Where(x => x.Author == author);
             }
 
             //Sorting
