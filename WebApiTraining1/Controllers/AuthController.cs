@@ -89,9 +89,11 @@ namespace WebApiTraining1.Controllers
                     RoleId = 2 //set default is a customer
                 };
 
-                if (user == null)
+                var exist = _context.Users.FirstOrDefault(x => x.Email == user.Email);
+
+                if (exist != null)
                 {
-                    throw new Exception("This user does not exist");
+                    throw new Exception("This user already exists");
                 }
 
                 _context.Add(user);
@@ -151,7 +153,7 @@ namespace WebApiTraining1.Controllers
                 IsUsed = false,
                 IsRevoked = false,
                 IssuedAt = DateTime.UtcNow,
-                ExpiredAt = DateTime.UtcNow.AddMinutes(1),
+                ExpiredAt = DateTime.UtcNow.AddMinutes(5),
             };
 
             await _context.AddAsync(refreshTokenEntity);
@@ -182,7 +184,7 @@ namespace WebApiTraining1.Controllers
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTime.UtcNow.AddMinutes(1),
+                Expires = DateTime.UtcNow.AddMinutes(5),
             };
             Response.Cookies.Append("jwtCookie", token, cookieOptions);
         }
