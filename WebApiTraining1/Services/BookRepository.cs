@@ -9,14 +9,14 @@ namespace WebApiTraining1.Services
     public class BookRepository : IBookRepository
     {
         private MyDbContext _context;
-        public static int PAGE_SIZE { get; set; } = 2;
+ 
 
         public BookRepository(MyDbContext context)
         {
             _context = context;
         }
 
-        public List<Book> GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1)
+        public object GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
         {
             var book = _context.Books.AsQueryable();
 
@@ -52,9 +52,10 @@ namespace WebApiTraining1.Services
             }
 
             //Paging
-            book = book.Skip((page - 1) * PAGE_SIZE).Take(PAGE_SIZE);
+            book = book.Skip((page - 1) * rows).Take(rows);
+            var totalBooks = _context.Books.Count();
 
-            return book.ToList();
+            return new { books = book.ToList(), totalBooks };
         }
 
         public Book Create(Book book)

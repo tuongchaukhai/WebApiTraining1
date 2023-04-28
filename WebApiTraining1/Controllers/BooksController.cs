@@ -26,11 +26,11 @@ namespace WebApiTraining1.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1)
+        public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
         {
             try
             {
-                var result = _bookRepository.GetAll(id, title, author, sortBy, page);
+                var result = _bookRepository.GetAll(id, title, author, sortBy, page, rows);
                 return Ok(result);
             }
             catch (Exception ex)

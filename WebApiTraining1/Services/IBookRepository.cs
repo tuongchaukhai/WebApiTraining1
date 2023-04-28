@@ -7,7 +7,7 @@ namespace WebApiTraining1.Services
 {
     public interface IBookRepository
     {
-        List<Book> GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1);
+        List<Book> GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5);
 
         Book Create(Book book);
 
