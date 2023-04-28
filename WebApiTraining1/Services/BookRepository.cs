@@ -65,13 +65,14 @@ namespace WebApiTraining1.Services
 
         public object GetAllWithSP([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
         {
-     
+
             var books = _context.Books.FromSql($"EXEC sp_RetrieveBooks {title}, {author}").ToList();
 
             var bookSkip = books.Skip((page - 1) * rows).Take(rows);
-            var totalBooks = books.Count();
+            //var totalBooks = books.Count();
+            var totalBooks = _context.Database.SqlQuery<int>($"SELECT dbo.func_totalBooks()");
 
-            return new { bookSkip, totalBooks};
+            return new { bookSkip, totalBooks };
         }
 
         #region ADO.NET func

@@ -33,12 +33,13 @@ public partial class MyDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Book__3214EC07CA88FCD5");
 
-            entity.ToTable("Book");
+            entity.ToTable("Book", tb => tb.HasTrigger("tg_LastModified"));
 
             entity.Property(e => e.Author).HasMaxLength(50);
             entity.Property(e => e.Ibsn)
                 .HasMaxLength(30)
                 .HasColumnName("IBSN");
+            entity.Property(e => e.LastModified).HasColumnType("datetime");
             entity.Property(e => e.Title).HasMaxLength(100);
         });
 

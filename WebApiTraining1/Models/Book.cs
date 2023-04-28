@@ -12,4 +12,6 @@ public partial class Book
     public string? Author { get; set; }
 
     public string? Ibsn { get; set; }
+
+    public DateTime? LastModified { get; set; }
 }
