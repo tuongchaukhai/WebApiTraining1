@@ -16,5 +16,7 @@ namespace WebApiTraining1.Services
         void Delete(int id);
 
         Book Details(int id);
+
+        object GetAllWithSP([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5);
     }
 }

@@ -25,12 +25,26 @@ namespace WebApiTraining1.Controllers
             _logger = logger;
         }
 
+        //[HttpGet]
+        //public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
+        //{
+        //    try
+        //    {
+        //        var result = _bookRepository.GetAll(id, title, author, sortBy, page, rows);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest("Can't get the book");
+        //    }
+        //}
+
         [HttpGet]
-        public IActionResult GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
+        public IActionResult GetAllWithSP([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
         {
             try
             {
-                var result = _bookRepository.GetAll(id, title, author, sortBy, page, rows);
+                var result = _bookRepository.GetAllWithSP(id, title, author, sortBy, page, rows);
                 return Ok(result);
             }
             catch (Exception ex)

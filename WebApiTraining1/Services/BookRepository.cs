@@ -1,19 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using WebApiTraining1.Models;
 using WebApiTraining1.ViewModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace WebApiTraining1.Services
 {
     public class BookRepository : IBookRepository
     {
         private MyDbContext _context;
- 
+        private IConfiguration _configuration;
 
-        public BookRepository(MyDbContext context)
+        public BookRepository(MyDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public object GetAll([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
@@ -56,6 +61,41 @@ namespace WebApiTraining1.Services
             var totalBooks = _context.Books.Count();
 
             return new { books = book.ToList(), totalBooks };
+        }
+
+        public object GetAllWithSP([FromQuery] int? id, [FromQuery] string? title, [FromQuery] string? author, string? sortBy, int page = 1, int rows = 5)
+        {
+            List<Book> books = new List<Book>();
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("MyDbConnection")))
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_RetrieveBooks", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@title", title);
+                    cmd.Parameters.AddWithValue("@author", author);
+                    connection.Open();
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var book = new Book
+                            {
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                Author = reader.GetString(2),
+                                Ibsn = reader.GetString(3)
+                            };
+                            books.Add(book);
+                        }
+                    }
+                }
+            }
+
+            //Paging
+            var bookSkip =  books.Skip((page - 1) * rows).Take(rows);
+            var totalBooks = books.Count;
+            return new { bookSkip, totalBooks };
         }
 
         public Book Create(Book book)
